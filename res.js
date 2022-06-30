@@ -138,8 +138,8 @@ res.prototype = {
           /(edge|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i
         ) || [];
 
-    if (that.uagent.match(/(edge(?=\/))\/?\s*(\d+)/i)) {
-      M = that.uagent.match(/(edge(?=\/))\/?\s*(\d+)/i);
+    if (that.uagent.match(/(edg(?=\/))\/?\s*(\d+)/i)) {
+      M = that.uagent.match(/(edg(?=\/))\/?\s*(\d+)/i);
       that.browser = "edge";
       that.version = M[2];
       return "Edge " + (M[2] || "");

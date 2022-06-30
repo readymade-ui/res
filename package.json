@@ -4,7 +4,7 @@
   "description": "![res.js](https://raw.githubusercontent.com/readymade-ui/res/master/res-logo.png)",
   "main": "res.js",
   "scripts": {
-    "build": "esbuild res.js --bundle --outfile=res.min.js --minify",
+    "build": "esbuild res.js --bundle --outfile=res.min.js --minify --global-name=Res",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

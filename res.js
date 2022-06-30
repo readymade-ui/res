@@ -1,10 +1,10 @@
 /*
-   res.js v1.3
+   @readymade/res 0.0.1
 
    Author: Steve Belovarich
 
    The MIT License (MIT)
-   Copyright (c) 2014 Steve Belovarich
+   Copyright (c) 2022 Steve Belovarich
 
    Permission is hereby granted, free of charge, to any person obtaining a copy
    of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 
-   Usage: var r = new res([{
+   Usage: const r = new Res([{
                      "state": "portrait",
                      "breakpoint": 420,
                      "cols": 4,
@@ -44,198 +44,195 @@
                      "cols": 12,
                      "margin": 40,
                      "gutter": 10
-                 }]);
+                 }], onStateChange);
 
-                 window.addEventListener('stateChange',function(ev,i){
+                 function onStateChange(ev,i){
 
                     console.log(r.state); // get the state from the object you created
 
-                 });
+                 }
 
+                 window.addEventListener('stateChange',onStateChange);
 */
 
-var res = function (json, cb) {
-  var that = this;
-  this.uagent = navigator.userAgent.toLowerCase();
-  this.state = undefined;
-  this.input = undefined;
-  this.orient = undefined;
-  this.device = undefined;
-  this.os = undefined;
-  this.browser = undefined;
-  this.version = undefined;
-  this.width = 0;
-  this.grid = {};
-  this.viewports = {};
-  this.gridsettings = {};
+class Res {
+  constructor(json, cb) {
+    this.userAgent = navigator.userAgent.toLowerCase();
+    this.state = undefined;
+    this.input = undefined;
+    this.orientation = undefined;
+    this.device = undefined;
+    this.os = undefined;
+    this.browser = undefined;
+    this.version = undefined;
+    this.width = 0;
+    this.grid = {};
+    this.states = {};
+    this.gridSettings = {};
 
-  var lastBreakpoint = 0;
+    let lastBreakpoint = 0;
 
-  for (var i = 0; i < json.length; i++) {
-    that.viewports[json[i].state] = [lastBreakpoint + 1, json[i].breakpoint];
-    if (
-      json[i].cols !== undefined &&
-      json[i].margin !== undefined &&
-      json[i].gutter !== undefined
-    ) {
-      that.gridsettings[json[i].state] = [
-        json[i].cols,
-        json[i].margin,
-        json[i].gutter,
-      ];
+    for (let i = 0; i < json.length; i++) {
+      this.states[json[i].state] = [lastBreakpoint + 1, json[i].breakpoint];
+      if (
+        json[i].cols !== undefined &&
+        json[i].margin !== undefined &&
+        json[i].gutter !== undefined
+      ) {
+        this.gridSettings[json[i].state] = [
+          json[i].cols,
+          json[i].margin,
+          json[i].gutter,
+        ];
+      }
+      lastBreakpoint = json[i].breakpoint;
     }
-    lastBreakpoint = json[i].breakpoint;
+    this.initCallback = cb;
+    this.init();
   }
-  this.initCallback = cb;
-  this.init();
-};
-res.prototype = {
-  onInit: function (args) {
-    setTimeout(() => this.initCallback(args), 1);
-  },
-  setState: function () {
-    var that = this;
 
-    if (that.device === "desktop") {
-      that.width = window.innerWidth;
-    } else if (that.device !== "desktop") {
-      if (that.orient === "portrait") {
-        that.width = screen.width;
-      } else if (that.orient === "landscape") {
-        that.width = screen.height;
+  onInit(args) {
+    setTimeout(() => this.initCallback(args), 1);
+  }
+
+  setState() {
+    if (this.device === "desktop") {
+      this.width = window.innerWidth;
+    } else if (this.device !== "desktop") {
+      if (this.orientation === "portrait") {
+        this.width = screen.width;
+      } else if (this.orientation === "landscape") {
+        this.width = screen.height;
       }
     }
 
-    for (var key in that.viewports) {
-      if (that.viewports.hasOwnProperty(key)) {
+    for (let key in this.states) {
+      if (this.states.hasOwnProperty(key)) {
         if (
-          that.width >= that.viewports[key][0] &&
-          that.width <= that.viewports[key][1]
+          this.width >= this.states[key][0] &&
+          this.width <= this.states[key][1]
         ) {
-          if (that.state != key) {
-            that.state = key;
-            return that.state;
+          if (this.state != key) {
+            this.state = key;
+            return this.state;
           }
         }
       }
     }
-  },
+  }
 
-  inputCheck: function () {
-    var that = this;
-    if (that.os === "ios" || that.os === "android" || that.os === "winphone") {
-      that.input = "touch";
+  inputCheck() {
+    if (this.os === "ios" || this.os === "android" || this.os === "winphone") {
+      this.input = "touch";
     } else {
-      that.input = "mouse";
+      this.input = "mouse";
     }
-  },
+  }
 
-  browserCheck: function () {
-    var that = this;
-    var tem,
+  browserCheck() {
+    let tem,
       M =
-        that.uagent.match(
+        this.userAgent.match(
           /(edge|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i
         ) || [];
 
-    if (that.uagent.match(/(edg(?=\/))\/?\s*(\d+)/i)) {
-      M = that.uagent.match(/(edg(?=\/))\/?\s*(\d+)/i);
-      that.browser = "edge";
-      that.version = M[2];
+    if (this.userAgent.match(/(edg(?=\/))\/?\s*(\d+)/i)) {
+      M = this.userAgent.match(/(edg(?=\/))\/?\s*(\d+)/i);
+      this.browser = "edge";
+      this.version = M[2];
       return "Edge " + (M[2] || "");
     }
     if (/trident/i.test(M[1])) {
-      tem = /\brv[ :]+(\d+)/g.exec(that.uagent) || [];
-      that.browser = "msie";
-      that.version = tem[1];
+      tem = /\brv[ :]+(\d+)/g.exec(this.userAgent) || [];
+      this.browser = "msie";
+      this.version = tem[1];
       return "IE " + (tem[1] || "");
     }
     if (M[1] === "Chrome") {
-      tem = that.uagent.match(/\bOPR\/(\d+)/);
+      tem = this.userAgent.match(/\bOPR\/(\d+)/);
       if (tem != null) {
-        that.browser = "opera";
-        that.version = tem[1];
+        this.browser = "opera";
+        this.version = tem[1];
         return "Opera " + tem[1];
       }
     }
 
     M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, "-?"];
 
-    if ((tem = that.uagent.match(/version\/(\d+)/i)) != null) {
+    if ((tem = this.userAgent.match(/version\/(\d+)/i)) != null) {
       M.splice(1, 1, tem[1]);
     }
-    that.browser = M[0];
-    that.version = M[1];
+    this.browser = M[0];
+    this.version = M[1];
     return M.join(" ");
-  },
+  }
 
-  osCheck: function () {
-    var that = this;
+  osCheck() {
     if (navigator.appVersion.indexOf("Win") != -1) {
-      that.os = "windows";
-      that.device = "desktop";
+      this.os = "windows";
+      this.device = "desktop";
     } else if (
       navigator.appVersion.indexOf("Mac") != -1 &&
       navigator.userAgent.match(/(iPhone|iPod|iPad)/) == null
     ) {
-      that.os = "osx";
-      that.device = "desktop";
+      this.os = "macos";
+      this.device = "desktop";
     } else if (navigator.userAgent.indexOf("Android") > -1) {
-      that.os = "android";
+      this.os = "android";
       if (navigator.userAgent.indexOf("Mobile") > -1) {
-        that.device = "mobile";
+        this.device = "mobile";
       } else {
-        that.device = "tablet";
+        this.device = "tablet";
       }
     } else if (navigator.userAgent.indexOf("windows phone") > 0) {
-      that.os = "windows";
-      that.device = "mobile";
+      this.os = "windows";
+      this.device = "mobile";
     } else if (navigator.appVersion.indexOf("X11") != -1) {
-      that.os = "unix";
-      that.device = "desktop";
+      this.os = "unix";
+      this.device = "desktop";
     } else if (navigator.appVersion.indexOf("Linux") != -1) {
-      that.os = "linux";
-      that.device = "desktop";
+      this.os = "linux";
+      this.device = "desktop";
     } else if (
       navigator.userAgent.match(/(iPhone|iPod|iPad)/) !== null &&
       navigator.userAgent.match(/(iPhone|iPod|iPad)/).length > 0
     ) {
-      that.os = "ios";
-      if (that.uagent.indexOf("iphone") > 0) {
-        that.device = "iphone";
+      this.os = "ios";
+      if (this.userAgent.indexOf("iphone") > 0) {
+        this.device = "iphone";
       }
-      if (that.uagent.indexOf("ipod") > 0) {
-        that.device = "ipod";
+      if (this.userAgent.indexOf("ipod") > 0) {
+        this.device = "ipod";
       }
-      if (that.uagent.indexOf("ipad") > 0) {
-        that.device = "ipad";
+      if (this.userAgent.indexOf("ipad") > 0) {
+        this.device = "ipad";
       }
     } else {
-      that.os = "unknown";
+      this.os = "unknown";
     }
-  },
+  }
 
-  gridHelper: function (key) {
-    var that = this;
-
-    var col,
+  gridHelper(key) {
+    let col,
       colArr = [],
       colSpan,
       colSpanArr = [],
       margin,
       gutter,
-      cols;
+      cols,
+      width,
+      columnWidth;
 
-    cols = that.gridsettings[key][0];
-    margin = that.gridsettings[key][1];
-    gutter = that.gridsettings[key][2];
+    cols = this.gridSettings[key][0];
+    margin = this.gridSettings[key][1];
+    gutter = this.gridSettings[key][2];
 
     col = [];
     colSpan = [];
     width = window.innerWidth - margin * 2 + gutter;
     columnWidth = width / cols - gutter;
 
-    for (var i = 0; i < cols; i++) {
+    for (let i = 0; i < cols; i++) {
       if (i === 0) {
         colSpan = 0;
       } else {
@@ -258,56 +255,53 @@ res.prototype = {
       margin: margin,
       gutter: gutter,
     };
-  },
+  }
 
-  resize: function () {
-    var that = this;
-
+  resize() {
     if (window.innerHeight > window.innerWidth) {
-      that.orient = "portrait";
+      this.orientation = "portrait";
     } else {
-      that.orient = "landscape";
+      this.orientation = "landscape";
     }
 
-    that.setState();
+    this.setState();
 
-    if (that.gridsettings.hasOwnProperty(that.state)) {
-      that.grid = that.gridHelper(that.state);
+    if (this.gridSettings.hasOwnProperty(this.state)) {
+      this.grid = this.gridHelper(this.state);
     }
 
-    that.stateChange = new CustomEvent("stateChange", {
-      bubbles: false,
-      cancelable: true,
-    });
+    this.onInit(this);
 
-    console.log(that);
-    that.onInit(that);
+    window.dispatchEvent(
+      new CustomEvent("stateChange", {
+        bubbles: false,
+        cancelable: true,
+      })
+    );
 
-    window.dispatchEvent(that.stateChange);
+    return this;
+  }
 
-    return that;
-  },
+  init() {
+    this.osCheck();
+    this.inputCheck();
+    this.browserCheck();
+    this.setState();
 
-  init: function () {
-    var that = this;
-
-    that.osCheck();
-    that.inputCheck();
-    that.browserCheck();
-    var state = that.setState();
-
-    if (that.gridsettings.hasOwnProperty(that.state)) {
-      that.grid = that.gridHelper(that.state);
+    if (this.gridSettings.hasOwnProperty(this.state)) {
+      this.grid = this.gridHelper(this.state);
     }
 
-    window.onorientationchange = function () {
-      that.resize();
+    window.onorientationchange = () => {
+      this.resize();
     };
 
-    window.onresize = function () {
-      that.resize();
+    window.onresize = () => {
+      this.resize();
     };
 
-    that.resize();
-  },
-};
+    this.resize();
+  }
+}
+
+export { Res };

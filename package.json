@@ -1,0 +1,19 @@
+{
+  "name": "@readymade/res",
+  "version": "0.0.1",
+  "description": "![res.js](https://raw.githubusercontent.com/readymade-ui/res/master/res-logo.png)",
+  "main": "res.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/readymade-ui/res.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/readymade-ui/res/issues"
+  },
+  "homepage": "https://github.com/readymade-ui/res#readme"
+}

@@ -54,24 +54,7 @@
 
 */
 
-//Polyfill for CustomEvent in IE9+
-(function() {
-  function CustomEvent(event, params) {
-    params = params || {
-      bubbles: false,
-      cancelable: false,
-      detail: undefined
-    };
-    var evt = document.createEvent('CustomEvent');
-    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-    return evt;
-  };
-  CustomEvent.prototype = window.Event.prototype;
-  window.CustomEvent = CustomEvent;
-})();
-
-var res = function(json) {
-
+var res = function (json, cb) {
   var that = this;
   this.uagent = navigator.userAgent.toLowerCase();
   this.state = undefined;
@@ -90,32 +73,45 @@ var res = function(json) {
 
   for (var i = 0; i < json.length; i++) {
     that.viewports[json[i].state] = [lastBreakpoint + 1, json[i].breakpoint];
-    if (json[i].cols !== undefined && json[i].margin !== undefined && json[i].gutter !== undefined) {
-      that.gridsettings[json[i].state] = [json[i].cols, json[i].margin, json[i].gutter];
+    if (
+      json[i].cols !== undefined &&
+      json[i].margin !== undefined &&
+      json[i].gutter !== undefined
+    ) {
+      that.gridsettings[json[i].state] = [
+        json[i].cols,
+        json[i].margin,
+        json[i].gutter,
+      ];
     }
     lastBreakpoint = json[i].breakpoint;
-  };
-
+  }
+  this.initCallback = cb;
   this.init();
 };
 res.prototype = {
-
-  setState: function() {
+  onInit: function (args) {
+    setTimeout(() => this.initCallback(args), 1);
+  },
+  setState: function () {
     var that = this;
 
-    if (that.device === 'desktop') {
+    if (that.device === "desktop") {
       that.width = window.innerWidth;
-    } else if (that.device !== 'desktop') {
-      if (that.orient === 'portrait') {
+    } else if (that.device !== "desktop") {
+      if (that.orient === "portrait") {
         that.width = screen.width;
-      } else if (that.orient === 'landscape') {
+      } else if (that.orient === "landscape") {
         that.width = screen.height;
       }
     }
 
     for (var key in that.viewports) {
       if (that.viewports.hasOwnProperty(key)) {
-        if (that.width >= that.viewports[key][0] && that.width <= that.viewports[key][1]) {
+        if (
+          that.width >= that.viewports[key][0] &&
+          that.width <= that.viewports[key][1]
+        ) {
           if (that.state != key) {
             that.state = key;
             return that.state;
@@ -125,78 +121,86 @@ res.prototype = {
     }
   },
 
-  inputCheck: function() {
+  inputCheck: function () {
     var that = this;
-    if (that.os === 'ios' || that.os === 'android' || that.os === 'winphone') {
-      that.input = 'touch';
+    if (that.os === "ios" || that.os === "android" || that.os === "winphone") {
+      that.input = "touch";
     } else {
-      that.input = 'mouse';
+      that.input = "mouse";
     }
   },
 
-  browserCheck: function() {
+  browserCheck: function () {
     var that = this;
     var tem,
-      M = that.uagent.match(/(edge|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+      M =
+        that.uagent.match(
+          /(edge|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i
+        ) || [];
 
     if (that.uagent.match(/(edge(?=\/))\/?\s*(\d+)/i)) {
       M = that.uagent.match(/(edge(?=\/))\/?\s*(\d+)/i);
-      that.browser = 'edge';
+      that.browser = "edge";
       that.version = M[2];
-      return 'Edge ' + (M[2] || '');
+      return "Edge " + (M[2] || "");
     }
     if (/trident/i.test(M[1])) {
       tem = /\brv[ :]+(\d+)/g.exec(that.uagent) || [];
-      that.browser = 'msie';
+      that.browser = "msie";
       that.version = tem[1];
-      return 'IE ' + (tem[1] || '');
+      return "IE " + (tem[1] || "");
     }
-    if (M[1] === 'Chrome') {
+    if (M[1] === "Chrome") {
       tem = that.uagent.match(/\bOPR\/(\d+)/);
       if (tem != null) {
-        that.browser = 'opera';
+        that.browser = "opera";
         that.version = tem[1];
-        return 'Opera ' + tem[1];
+        return "Opera " + tem[1];
       }
     }
 
-    M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
+    M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, "-?"];
 
     if ((tem = that.uagent.match(/version\/(\d+)/i)) != null) {
       M.splice(1, 1, tem[1]);
     }
     that.browser = M[0];
     that.version = M[1];
-    return M.join(' ');
+    return M.join(" ");
   },
 
-  osCheck: function() {
+  osCheck: function () {
     var that = this;
     if (navigator.appVersion.indexOf("Win") != -1) {
-      that.os = 'windows';
-      that.device = 'desktop';
-    } else if (navigator.appVersion.indexOf("Mac") != -1 && navigator.userAgent.match(/(iPhone|iPod|iPad)/) == null) {
-      that.os = 'osx';
-      that.device = 'desktop';
+      that.os = "windows";
+      that.device = "desktop";
+    } else if (
+      navigator.appVersion.indexOf("Mac") != -1 &&
+      navigator.userAgent.match(/(iPhone|iPod|iPad)/) == null
+    ) {
+      that.os = "osx";
+      that.device = "desktop";
     } else if (navigator.userAgent.indexOf("Android") > -1) {
-      that.os = 'android';
+      that.os = "android";
       if (navigator.userAgent.indexOf("Mobile") > -1) {
-        that.device = 'mobile';
+        that.device = "mobile";
       } else {
-        that.device = 'tablet';
+        that.device = "tablet";
       }
-
     } else if (navigator.userAgent.indexOf("windows phone") > 0) {
-      that.os = 'windows';
-      that.device = 'mobile';
+      that.os = "windows";
+      that.device = "mobile";
     } else if (navigator.appVersion.indexOf("X11") != -1) {
-      that.os = 'unix';
-      that.device = 'desktop';
+      that.os = "unix";
+      that.device = "desktop";
     } else if (navigator.appVersion.indexOf("Linux") != -1) {
-      that.os = 'linux';
-      that.device = 'desktop';
-    } else if (navigator.userAgent.match(/(iPhone|iPod|iPad)/) !== null && navigator.userAgent.match(/(iPhone|iPod|iPad)/).length > 0) {
-      that.os = 'ios';
+      that.os = "linux";
+      that.device = "desktop";
+    } else if (
+      navigator.userAgent.match(/(iPhone|iPod|iPad)/) !== null &&
+      navigator.userAgent.match(/(iPhone|iPod|iPad)/).length > 0
+    ) {
+      that.os = "ios";
       if (that.uagent.indexOf("iphone") > 0) {
         that.device = "iphone";
       }
@@ -207,12 +211,11 @@ res.prototype = {
         that.device = "ipad";
       }
     } else {
-      that.os = 'unknown';
+      that.os = "unknown";
     }
   },
 
-  gridHelper: function(key) {
-
+  gridHelper: function (key) {
     var that = this;
 
     var col,
@@ -229,42 +232,41 @@ res.prototype = {
 
     col = [];
     colSpan = [];
-    width = window.innerWidth - (margin * 2) + gutter;
-    columnWidth = (width / cols) - gutter;
+    width = window.innerWidth - margin * 2 + gutter;
+    columnWidth = width / cols - gutter;
 
     for (var i = 0; i < cols; i++) {
       if (i === 0) {
         colSpan = 0;
       } else {
-        colSpan = (columnWidth * i) + (gutter * (i - 1));
+        colSpan = columnWidth * i + gutter * (i - 1);
       }
-      col = ((width / cols) * i) + margin;
+      col = (width / cols) * i + margin;
       colArr.push(col);
       colSpanArr.push(colSpan);
 
       if (i === cols - 1) {
-        colSpan = (columnWidth * (i + 1)) + (gutter * (i))
+        colSpan = columnWidth * (i + 1) + gutter * i;
         colSpanArr.push(colSpan);
       }
     }
     return {
-      "cols": cols,
-      "col": colArr,
-      "colSpan": colSpanArr,
-      "width": width,
-      "margin": margin,
-      "gutter": gutter
+      cols: cols,
+      col: colArr,
+      colSpan: colSpanArr,
+      width: width,
+      margin: margin,
+      gutter: gutter,
     };
-
   },
 
-  resize: function() {
+  resize: function () {
     var that = this;
 
     if (window.innerHeight > window.innerWidth) {
-      that.orient = 'portrait';
+      that.orient = "portrait";
     } else {
-      that.orient = 'landscape';
+      that.orient = "landscape";
     }
 
     that.setState();
@@ -275,30 +277,37 @@ res.prototype = {
 
     that.stateChange = new CustomEvent("stateChange", {
       bubbles: false,
-      cancelable: true
+      cancelable: true,
     });
+
+    console.log(that);
+    that.onInit(that);
 
     window.dispatchEvent(that.stateChange);
 
     return that;
   },
 
-  init: function() {
+  init: function () {
     var that = this;
 
     that.osCheck();
     that.inputCheck();
     that.browserCheck();
+    var state = that.setState();
 
-    window.onorientationchange = function() {
+    if (that.gridsettings.hasOwnProperty(that.state)) {
+      that.grid = that.gridHelper(that.state);
+    }
+
+    window.onorientationchange = function () {
       that.resize();
     };
 
-    window.onresize = function() {
+    window.onresize = function () {
       that.resize();
     };
 
     that.resize();
-  }
-
+  },
 };

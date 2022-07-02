@@ -1,4 +1,24 @@
 class Res {
+  browser: string;
+  device: string;
+  initCallback: (args: any) => any;
+  input: string;
+  grid: {
+    cols?: number;
+    col?: number[];
+    colSpan?: number[];
+    width?: number;
+    margin?: number;
+    gutter?: number;
+  };
+  gridSettings: Record<string, number[]>;
+  orientation: string;
+  os: string;
+  state: string;
+  states: Record<string, number[]>;
+  userAgent: string;
+  version: string;
+  width: number;
   constructor(json, cb) {
     this.userAgent = navigator.userAgent.toLowerCase();
     this.state = undefined;

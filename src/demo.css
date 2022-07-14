@@ -1,6 +1,7 @@
 body {
     color: #ffffff;
     font-family: sans-serif;
+    box-sizing: border-box;
 }
 
 ul,li{
@@ -15,7 +16,7 @@ ul,li{
     display:block;
     position:absolute;
     height:50px;
-    background-color:#FF0000;
+    background-color:#ff006f;
     margin:0;
     padding:0;
     margin-top:50px;

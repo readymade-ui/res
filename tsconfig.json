@@ -1,11 +1,10 @@
 {
     "compilerOptions": {
-        "emitDeclarationOnly": true,
+        "lib": ["ESNext", "DOM"],
         "module": "ES2015",
-        "target": "ES2017",
-        "declaration": true,
-        "sourceMap":true,
         "pretty":true,
+        "target": "ES2017",
+        "sourceMap":true
     },
     "include":[ 
         "src/**/*"

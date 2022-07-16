@@ -1,7 +1,3 @@
-import "./demo.css";
-
-import { Res } from "./res";
-
 const onStateChange = () => {
   const boxes = document.querySelectorAll(".box");
   console.log(r.grid);

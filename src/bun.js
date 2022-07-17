@@ -1,13 +1,6 @@
+import * as mime from "mime";
 import { join, extname } from "path";
 const { file, serve } = Bun;
-
-const MIME_TYPES = {
-  ico: "image/x-icon",
-  css: "text/css",
-  js: "text/javascript",
-  json: "application/json",
-  html: "text/html",
-};
 
 serve({
   port: 3000,
@@ -22,7 +15,7 @@ serve({
     }
     return new Response(blob, {
       headers: {
-        "Content-Type": MIME_TYPES[extension.split(".")[1]],
+        "Content-Type": mime.getType(extension.split(".")[1]),
       },
     });
   },

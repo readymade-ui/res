@@ -1,17 +1,20 @@
+interface GridSettings {
+  cols?: number;
+  col?: number[];
+  colSpan?: number[];
+  width?: number;
+  gutter?: number;
+  margin?: number;
+  columnWidth?: number;
+}
+
 class Res {
   browser: string;
   device: string;
   initCallback: (args: any) => any;
   input: string;
-  grid: {
-    cols?: number;
-    col?: number[];
-    colSpan?: number[];
-    width?: number;
-    margin?: number;
-    gutter?: number;
-  };
-  gridSettings: Record<string, number[]>;
+  grid: GridSettings;
+  gridSettings: Record<string, GridSettings>;
   orientation: string;
   os: string;
   state: string;
@@ -32,22 +35,11 @@ class Res {
     this.grid = {};
     this.states = {};
     this.gridSettings = {};
-
     let lastBreakpoint = 0;
 
     for (let i = 0; i < json.length; i++) {
       this.states[json[i].state] = [lastBreakpoint + 1, json[i].breakpoint];
-      if (
-        json[i].cols !== undefined &&
-        json[i].margin !== undefined &&
-        json[i].gutter !== undefined
-      ) {
-        this.gridSettings[json[i].state] = [
-          json[i].cols,
-          json[i].margin,
-          json[i].gutter,
-        ];
-      }
+      this.gridSettings[json[i].state] = json[i];
       lastBreakpoint = json[i].breakpoint;
     }
     this.initCallback = cb;
@@ -180,43 +172,43 @@ class Res {
       colArr = [],
       colSpan,
       colSpanArr = [],
-      margin,
       gutter,
+      margin,
       cols,
       width,
       columnWidth;
 
-    cols = this.gridSettings[key][0];
-    margin = this.gridSettings[key][1];
-    gutter = this.gridSettings[key][2];
+    cols = this.gridSettings[key].cols;
+    gutter = this.gridSettings[key].gutter;
+    margin = this.gridSettings[key].margin;
 
     col = [];
     colSpan = [];
-    width = window.innerWidth - margin * 2 + gutter;
-    columnWidth = width / cols - gutter;
+    width = window.innerWidth - gutter * 2 + margin;
+    columnWidth = width / cols - margin;
 
     for (let i = 0; i < cols; i++) {
       if (i === 0) {
         colSpan = 0;
       } else {
-        colSpan = columnWidth * i + gutter * (i - 1);
+        colSpan = columnWidth * i + margin * (i - 1);
       }
-      col = (width / cols) * i + margin;
+      col = (width / cols) * i + gutter;
       colArr.push(col);
       colSpanArr.push(colSpan);
 
       if (i === cols - 1) {
-        colSpan = columnWidth * (i + 1) + gutter * i;
+        colSpan = columnWidth * (i + 1) + margin * i;
         colSpanArr.push(colSpan);
       }
     }
     return {
-      cols: cols,
+      cols,
       col: colArr,
       colSpan: colSpanArr,
-      width: width,
-      margin: margin,
-      gutter: gutter,
+      width,
+      gutter,
+      margin,
     };
   }
 

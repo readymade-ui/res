@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "npm run build:main && npm run build:types && npm run build:copy",
+    "build:server": "esbuild server.ts --minify --outfile=dist/server.js",
     "build:main": "esbuild src/res.ts --global-name=Res --outfile=dist/res.js",
     "build:types": "tsc --project tsconfig.json --declaration --emitDeclarationOnly --outDir dist",
     "build:copy": "node util/copy.js && cp LICENSE dist && cp README.md dist",
@@ -28,6 +29,8 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "bun": "^0.0.12",
+    "bun-livereload": "^1.0.3",
     "mime": "^3.0.0"
   },
   "exports": {

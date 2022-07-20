@@ -1,11 +1,14 @@
 interface GridSettings {
-  cols?: number;
-  col?: number[];
-  colSpan?: number[];
+  numberOfColumns?: number;
+  center?: boolean;
+  columnPositions?: number[];
+  columnSpan?: (index: number) => number;
   width?: number;
+  gutterOnOutside?: boolean;
   gutter?: number;
-  margin?: number;
   columnWidth?: number;
+  offset?: number;
+  totalWidth?: number;
 }
 
 class Res {
@@ -168,47 +171,64 @@ class Res {
   }
 
   gridHelper(key) {
-    let col,
+    let columnPositions,
       colArr = [],
-      colSpan,
-      colSpanArr = [],
-      gutter,
+      columnSpan,
+      span = [],
       margin,
-      cols,
+      gutter,
+      numberOfColumns,
       width,
-      columnWidth;
+      columnWidth,
+      offset,
+      centeredOffset;
 
-    cols = this.gridSettings[key].cols;
+    numberOfColumns = this.gridSettings[key].numberOfColumns;
     gutter = this.gridSettings[key].gutter;
-    margin = this.gridSettings[key].margin;
+    margin = this.gridSettings[key].gutterOnOutside === true ? gutter : 0;
+    offset = this.gridSettings[key].offset ? this.gridSettings[key].offset : 0;
+    centeredOffset = this.gridSettings[key].center
+      ? window.innerWidth / 2 - this.gridSettings[key].totalWidth / 2
+      : 0;
 
-    col = [];
-    colSpan = [];
-    width = window.innerWidth - gutter * 2 + margin;
-    columnWidth = width / cols - margin;
+    columnPositions = [];
+    columnSpan = [];
+    width =
+      (this.gridSettings[key].totalWidth
+        ? this.gridSettings[key].totalWidth
+        : window.innerWidth) -
+      margin * 2 +
+      gutter;
+    columnWidth = this.gridSettings[key].columnWidth
+      ? this.gridSettings[key].columnWidth - gutter
+      : width / numberOfColumns - gutter;
 
-    for (let i = 0; i < cols; i++) {
+    for (let i = 0; i < numberOfColumns; i++) {
       if (i === 0) {
-        colSpan = 0;
+        columnSpan = 0;
       } else {
-        colSpan = columnWidth * i + margin * (i - 1);
+        columnSpan =
+          columnWidth * i +
+          gutter * (i - 1) -
+          (this.gridSettings[key].columnWidth ? i : 0);
       }
-      col = (width / cols) * i + gutter;
-      colArr.push(col);
-      colSpanArr.push(colSpan);
+      columnPositions =
+        (width / numberOfColumns) * i + margin + offset + centeredOffset;
+      colArr.push(columnPositions);
+      span.push(columnSpan);
 
-      if (i === cols - 1) {
-        colSpan = columnWidth * (i + 1) + margin * i;
-        colSpanArr.push(colSpan);
+      if (i === numberOfColumns - 1) {
+        columnSpan = columnWidth * (i + 1) + gutter * i;
+        span.push(columnSpan);
       }
     }
     return {
-      cols,
-      col: colArr,
-      colSpan: colSpanArr,
+      gutterOnOutside: this.gridSettings[key].gutterOnOutside,
+      numberOfColumns,
+      columnPositions: colArr,
+      columnSpan: (index) => span[index],
       width,
       gutter,
-      margin,
     };
   }
 

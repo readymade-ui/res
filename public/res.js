@@ -15,16 +15,8 @@ class Res {
     let lastBreakpoint = 0;
     for (let i = 0; i < json.length; i++) {
       this.states[json[i].state] = [lastBreakpoint + 1, json[i].breakpoint];
-      if (
-        json[i].cols !== void 0 &&
-        json[i].margin !== void 0 &&
-        json[i].gutter !== void 0
-      ) {
-        this.gridSettings[json[i].state] = [
-          json[i].cols,
-          json[i].margin,
-          json[i].gutter,
-        ];
+      if (json[i].cols !== void 0 && json[i].margin !== void 0 && json[i].gutter !== void 0) {
+        this.gridSettings[json[i].state] = [json[i].cols, json[i].margin, json[i].gutter];
       }
       lastBreakpoint = json[i].breakpoint;
     }
@@ -46,10 +38,7 @@ class Res {
     }
     for (let key in this.states) {
       if (this.states.hasOwnProperty(key)) {
-        if (
-          this.width >= this.states[key][0] &&
-          this.width <= this.states[key][1]
-        ) {
+        if (this.width >= this.states[key][0] && this.width <= this.states[key][1]) {
           if (this.state != key) {
             this.state = key;
             return this.state;
@@ -67,10 +56,7 @@ class Res {
   }
   browserCheck() {
     let tem,
-      M =
-        this.userAgent.match(
-          /(edge|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i
-        ) || [];
+      M = this.userAgent.match(/(edge|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
     if (this.userAgent.match(/(edg(?=\/))\/?\s*(\d+)/i)) {
       M = this.userAgent.match(/(edg(?=\/))\/?\s*(\d+)/i);
       this.browser = "edge";
@@ -103,10 +89,7 @@ class Res {
     if (navigator.appVersion.indexOf("Win") != -1) {
       this.os = "windows";
       this.device = "desktop";
-    } else if (
-      navigator.appVersion.indexOf("Mac") != -1 &&
-      navigator.userAgent.match(/(iPhone|iPod|iPad)/) == null
-    ) {
+    } else if (navigator.appVersion.indexOf("Mac") != -1 && navigator.userAgent.match(/(iPhone|iPod|iPad)/) == null) {
       this.os = "macos";
       this.device = "desktop";
     } else if (navigator.userAgent.indexOf("Android") > -1) {
@@ -125,10 +108,7 @@ class Res {
     } else if (navigator.appVersion.indexOf("Linux") != -1) {
       this.os = "linux";
       this.device = "desktop";
-    } else if (
-      navigator.userAgent.match(/(iPhone|iPod|iPad)/) !== null &&
-      navigator.userAgent.match(/(iPhone|iPod|iPad)/).length > 0
-    ) {
+    } else if (navigator.userAgent.match(/(iPhone|iPod|iPad)/) !== null && navigator.userAgent.match(/(iPhone|iPod|iPad)/).length > 0) {
       this.os = "ios";
       if (this.userAgent.indexOf("iphone") > 0) {
         this.device = "iphone";

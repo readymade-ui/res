@@ -11,6 +11,11 @@ interface GridSettings {
   totalWidth?: number;
 }
 
+interface ResConfig {
+  states: Record<string, GridSettings>;
+  onStateChange: (gridSettings?: GridSettings) => void;
+}
+
 class Res {
   browser: string;
   device: string;
@@ -25,7 +30,7 @@ class Res {
   userAgent: string;
   version: string;
   width: number;
-  constructor(json, cb) {
+  constructor(config) {
     this.userAgent = navigator.userAgent.toLowerCase();
     this.state = undefined;
     this.input = undefined;
@@ -40,12 +45,15 @@ class Res {
     this.gridSettings = {};
     let lastBreakpoint = 0;
 
-    for (let i = 0; i < json.length; i++) {
-      this.states[json[i].state] = [lastBreakpoint + 1, json[i].breakpoint];
-      this.gridSettings[json[i].state] = json[i];
-      lastBreakpoint = json[i].breakpoint;
+    for (let i = 0; i < Object.keys(config.states).length; i++) {
+      const stateName = Object.keys(config.states)[i];
+      const gridSettings = config.states[stateName];
+      gridSettings.state = stateName;
+      this.states[stateName] = [lastBreakpoint + 1, gridSettings.breakpoint];
+      this.gridSettings[stateName] = gridSettings;
+      lastBreakpoint = gridSettings.breakpoint;
     }
-    this.initCallback = cb;
+    this.initCallback = config.onStateChange ? config.onStateChange : () => {};
     this.init();
   }
 
@@ -66,10 +74,7 @@ class Res {
 
     for (let key in this.states) {
       if (this.states.hasOwnProperty(key)) {
-        if (
-          this.width >= this.states[key][0] &&
-          this.width <= this.states[key][1]
-        ) {
+        if (this.width >= this.states[key][0] && this.width <= this.states[key][1]) {
           if (this.state != key) {
             this.state = key;
             return this.state;
@@ -89,10 +94,7 @@ class Res {
 
   browserCheck() {
     let tem,
-      M =
-        this.userAgent.match(
-          /(edge|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i
-        ) || [];
+      M = this.userAgent.match(/(edge|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
 
     if (this.userAgent.match(/(edg(?=\/))\/?\s*(\d+)/i)) {
       M = this.userAgent.match(/(edg(?=\/))\/?\s*(\d+)/i);
@@ -129,10 +131,7 @@ class Res {
     if (navigator.appVersion.indexOf("Win") != -1) {
       this.os = "windows";
       this.device = "desktop";
-    } else if (
-      navigator.appVersion.indexOf("Mac") != -1 &&
-      navigator.userAgent.match(/(iPhone|iPod|iPad)/) == null
-    ) {
+    } else if (navigator.appVersion.indexOf("Mac") != -1 && navigator.userAgent.match(/(iPhone|iPod|iPad)/) == null) {
       this.os = "macos";
       this.device = "desktop";
     } else if (navigator.userAgent.indexOf("Android") > -1) {
@@ -151,10 +150,7 @@ class Res {
     } else if (navigator.appVersion.indexOf("Linux") != -1) {
       this.os = "linux";
       this.device = "desktop";
-    } else if (
-      navigator.userAgent.match(/(iPhone|iPod|iPad)/) !== null &&
-      navigator.userAgent.match(/(iPhone|iPod|iPad)/).length > 0
-    ) {
+    } else if (navigator.userAgent.match(/(iPhone|iPod|iPad)/) !== null && navigator.userAgent.match(/(iPhone|iPod|iPad)/).length > 0) {
       this.os = "ios";
       if (this.userAgent.indexOf("iphone") > 0) {
         this.device = "iphone";
@@ -187,33 +183,20 @@ class Res {
     gutter = this.gridSettings[key].gutter;
     margin = this.gridSettings[key].gutterOnOutside === true ? gutter : 0;
     offset = this.gridSettings[key].offset ? this.gridSettings[key].offset : 0;
-    centeredOffset = this.gridSettings[key].center
-      ? window.innerWidth / 2 - this.gridSettings[key].totalWidth / 2
-      : 0;
+    centeredOffset = this.gridSettings[key].center ? window.innerWidth / 2 - this.gridSettings[key].totalWidth / 2 : 0;
 
     columnPositions = [];
     columnSpan = [];
-    width =
-      (this.gridSettings[key].totalWidth
-        ? this.gridSettings[key].totalWidth
-        : window.innerWidth) -
-      margin * 2 +
-      gutter;
-    columnWidth = this.gridSettings[key].columnWidth
-      ? this.gridSettings[key].columnWidth - gutter
-      : width / numberOfColumns - gutter;
+    width = (this.gridSettings[key].totalWidth ? this.gridSettings[key].totalWidth : window.innerWidth) - margin * 2 + gutter;
+    columnWidth = this.gridSettings[key].columnWidth ? this.gridSettings[key].columnWidth - gutter : width / numberOfColumns - gutter;
 
     for (let i = 0; i < numberOfColumns; i++) {
       if (i === 0) {
         columnSpan = 0;
       } else {
-        columnSpan =
-          columnWidth * i +
-          gutter * (i - 1) -
-          (this.gridSettings[key].columnWidth ? i : 0);
+        columnSpan = columnWidth * i + gutter * (i - 1) - (this.gridSettings[key].columnWidth ? i : 0);
       }
-      columnPositions =
-        (width / numberOfColumns) * i + margin + offset + centeredOffset;
+      columnPositions = (width / numberOfColumns) * i + margin + offset + centeredOffset;
       colArr.push(columnPositions);
       span.push(columnSpan);
 

@@ -28,9 +28,7 @@ const grid = document.createElement("res-grid") as ResGrid;
 document.body.appendChild(grid);
 
 const onStateChange = () => {
-  const boxes: HTMLUListElement[] = Array.from(
-    document.querySelectorAll(".box")
-  );
+  const boxes: HTMLUListElement[] = Array.from(document.querySelectorAll(".box"));
   console.log(r.grid);
   boxes[0].innerText = "state: " + r.state;
   boxes[1].innerText = "browser: " + r.browser;
@@ -47,7 +45,7 @@ const onStateChange = () => {
         box.style.left = r.grid.columnPositions[0] + "px";
       });
       break;
-    case "small":
+    case "tablet":
       boxes.forEach((box) => {
         box.style.width = r.grid.columnSpan(6) + "px";
         box.style.top = "0px";
@@ -82,37 +80,36 @@ const onStateChange = () => {
   });
 };
 
-var r = new Res(
-  [
-    {
-      state: "mobile",
-      breakpoint: 640,
-      numberOfColumns: 4,
-      gutterOnOutside: true,
-      gutter: 10,
-      offset: 0,
-    },
-    {
-      state: "small",
-      breakpoint: 1024,
-      numberOfColumns: 12,
-      gutterOnOutside: true,
-      gutter: 20,
-      offset: 0,
-    },
-    {
-      state: "desktop",
-      breakpoint: 1920,
-      totalWidth: 960,
-      columnWidth: 60,
-      numberOfColumns: 16,
-      gutterOnOutside: true,
-      gutter: 22,
-      offset: 0,
-      center: true,
-    },
-  ],
-  onStateChange
-);
+const states = {
+  mobile: {
+    breakpoint: 640,
+    numberOfColumns: 4,
+    gutterOnOutside: true,
+    gutter: 10,
+    offset: 0,
+  },
+  tablet: {
+    breakpoint: 1024,
+    numberOfColumns: 12,
+    gutterOnOutside: true,
+    gutter: 20,
+    offset: 0,
+  },
+  desktop: {
+    breakpoint: 1920,
+    totalWidth: 960,
+    columnWidth: 60,
+    numberOfColumns: 16,
+    gutterOnOutside: true,
+    gutter: 22,
+    offset: 0,
+    center: true,
+  },
+};
+
+const r = new Res({
+  states,
+  onStateChange,
+});
 
 window.addEventListener("stateChange", onStateChange);

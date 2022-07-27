@@ -1,14 +1,12 @@
-
 ![res.js](https://raw.githubusercontent.com/steveblue/res/master/res-logo.png)
 
 Res.js is a swiss army knife for responsive sites.
 
 Minified, Res.js comes in at 4kb making it the perfect compliment to your next project. Res.js is not dependant on jQuery or Zepto and is written in vanilla Javascript.
 
-
 Res.js is simple to include in your project. Res.js takes one argument, a JSON array of breakpoints. This makes it easy to include in an JSON formatted model you may already be using.
 
-Each state has two required keys: name ("state") and breakpoint ("breakpoint").  If you wish to position elements via a Javascript based grid, you can also provide optional number of columns ("cols"), outer margin ("margin") and gutter ("gutter"). Res.js will calculate the position of columns and size of column spans for you. An example of setting multiple breakpoints and supplying the units needed to create a grid for each breakpoint is below.
+Each state has two required keys: name ("state") and breakpoint ("breakpoint"). If you wish to position elements via a Javascript based grid, you can also provide optional number of columns ("cols"), outer margin ("margin") and gutter ("gutter"). Res.js will calculate the position of columns and size of column spans for you. An example of setting multiple breakpoints and supplying the units needed to create a grid for each breakpoint is below.
 
 ```
 
@@ -91,7 +89,6 @@ this.x = r.grid.col[8];
 
 ```
 
-
 In your app, you can listen for the "stateChange" event on the window and resposition and resize elements based on stateChange. This way you can make your apps more performant by not repeating `window.onresize` events. The stateChange fires after the window has resized and during initialization.
 
 ```
@@ -114,7 +111,6 @@ if(r.state === 'tablet'){
 ```
 
 Fork the repo and fire up index.html on your local development server. Type "r" in the console to get the current res.js implementation on the page. More examples coming soon.
-
 
 Sumbit issues in the issue tracker, fork the repo and make a pull request to add a feature.
 

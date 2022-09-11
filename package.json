@@ -1,6 +1,6 @@
 {
   "name": "@readymade/res",
-  "version": "0.0.1",
+  "version": "1.0.0-beta.0",
   "description": "A swiss-army knife for responsive web sites",
   "type": "module",
   "scripts": {
